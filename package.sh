@@ -4,7 +4,7 @@
 # 0.7.0 gateway clears LD_LIBRARY_PATH, which means that we need to use
 # a utility called patchelf. If we're building for the Pi, then verify
 # that it's been installed.
-if [ "${ADDON_ARCH}" == "linux-arm" ]; then
+if [ "${ADDON_ARCH}" = "linux-arm" ]; then
   if [[ ! $(type -P patchelf) ]]; then
     echo "patchelf utility doesn't seem to be installed."
     # patchelf should be installed in our raspberry pi cross compiler
@@ -31,7 +31,7 @@ else
   NODE_VERSION="$(node --version)"
   TARFILE_SUFFIX="-${ADDON_ARCH}-${NODE_VERSION/\.*/}"
 fi
-if [ "${ADDON_ARCH}" == "linux-arm" ]; then
+if [[ "${ADDON_ARCH}" =~ "linux-arm" ]]; then
   # We assume that CC and CXX are pointing to the cross compilers
   npm install --ignore-scripts ${PRODUCTION}
   npm rebuild --arch=armv6l --target_arch=arm
