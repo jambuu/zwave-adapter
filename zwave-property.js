@@ -23,6 +23,7 @@ const {
 const ALARM_EVENT_HOME_SECURITY_CLEAR = 0;
 const ALARM_EVENT_HOME_SECURITY_TAMPER = 3;
 const ALARM_EVENT_HOME_SECURITY_MOTION = 8;
+const ALARM_EVENT_HOME_SECURITY_CO_DETECTED = 2;
 
 class ZWaveProperty extends Property {
   constructor(device, name, propertyDescr, valueId,
@@ -97,6 +98,23 @@ class ZWaveProperty extends Property {
     }
     return [tamper, tamper.toString()];
   }
+
+  parseAlarmCoZwValue(zwData) {
+    let co_detected = this.value;
+    switch (zwData) {
+      case ALARM_EVENT_HOME_SECURITY_CLEAR:
+        co_detected = false;
+        break;
+      case ALARM_EVENT_HOME_SECURITY_CO_DETECTED:
+        co_detected = true;
+        break;
+    }
+    if (typeof co_detected === 'undefined') {
+      co_detected = false;
+    }
+    return [co_detected, co_detected.toString()];
+  }
+
 
   parseConfigListZwValue(zwData) {
     const zwValue = this.device.zwValues[this.valueId];

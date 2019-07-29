@@ -52,6 +52,7 @@ const ALARM_INDEX_HOME_SECURITY = 10;
 // and also from
 
 const NOTIFICATION_SMOKE_DETECTOR = 1;
+const NOTIFICATION_CO_DETECTOR = 2;
 const NOTIFICATION_WATER_LEAK = 5;
 const NOTIFICATION_ACCESS_CONTROL = 6;
 const NOTIFICATION_HOME_SECURITY = 7;
@@ -69,6 +70,18 @@ const NOTIFICATION_SENSOR = {
       readOnly: true,
     },
     valueListMap: [false, true],
+  },
+  [NOTIFICATION_CO_DETECTOR]: {// 2
+    name: 'carbon_monoxide',
+    propertyName: 'carbon_monoxide',
+    propertyDescr: {
+      '@type': 'CarbonMonoxideProperty',
+      type: 'boolean',
+      label: 'Carbon Monoxide',
+      description: 'Carbon Monoxide (CO) Detector',
+      readOnly: true,
+    },
+    valueListMap: ['Clear', 'CO Detected'],
   },
   [NOTIFICATION_WATER_LEAK]: {// 5
     name: 'water',
@@ -582,6 +595,18 @@ class ZWaveClassifier {
       alarmValueId,
       '',
       'parseAlarmTamperZwValue'
+    );
+    this.addProperty(
+      node,
+      'carbon_monoxide',
+      {
+        '@type': 'BooleanProperty',
+        label: 'CarbonMonoxide',
+        type: 'boolean',
+      },
+      alarmValueId,
+      '',
+      'parseAlarmCOZwValue'
     );
   }
 
@@ -1249,7 +1274,33 @@ class ZWaveClassifier {
         };
       }
     }
+    
+    if (alarmProperty &&
+        zwValue &&
+        zwValue.class_id == COMMAND_CLASS.SENSOR_ALARM &&
+        zwValue.index == NOTIFICATION_CO_DETECTOR) {
+      const binarySensorValueId =
+        node.findValueId(COMMAND_CLASS.SENSOR_BINARY,
+                         1,
+                         SENSOR_BINARY_INDEX_SENSOR);
+          if (binarySensorValueId) {
+            const binaryProperty = this.addProperty(
+              node,
+              '_on',
+              {
+                '@type': 'BooleanProperty',
+                readOnly: true,
+              },
+              binarySensorValueId
+              );
+              binaryProperty.updated = function() {
+                alarmProperty.setCachedValue(binaryProperty.value);
+                node.notifyPropertyChanged(alarmProperty);
+              };
+            }
+          }
   }
+
 
   initSwitch(node, binarySwitchValueId, levelValueId, suffix) {
     node['@type'] = ['OnOffSwitch'];

@@ -36,7 +36,9 @@ const COMMAND_CLASS = {
   BATTERY: 128,               // 0x80
   CLOCK: 129,                 // 0x81
   WAKE_UP: 132,               // 0x84
+  ASSOCIATION_GROUPS: 133,    // 0x85
   VERSION: 134,               // 0x86
+  SENSOR_ALARM: 156,          // 0x9c
 };
 addInverseMap(COMMAND_CLASS);
 
